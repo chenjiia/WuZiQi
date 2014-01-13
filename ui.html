@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script></script>
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+  <title>UI</title>
+  <script src="js/jquery-2.0.3.min.js"></script>
+
+</head>
+<body>
+<canvas id="board" width="400" height="400"></canvas>
+<script>
+var player = 1;
+//reference: http://stackoverflow.com/questions/3067691/html5-canvas-click-event
+$("#board").click(function(e){
+	var c=document.getElementById("board");
+    var x = Math.floor((e.pageX-$("#board").offset().left) / 20) + 1;
+    var y = Math.floor((e.pageY-$("#board").offset().top) / 20) + 1;
+	if(player == 1){
+		drawPiece(x,y,1);
+		player = 2;
+	}
+	else{
+		drawPiece(x,y,2);
+		player = 1;
+	}
+});
+</script>
+<script>
+function drawGrids(){
+	var c=document.getElementById("board");
+	var ctx=c.getContext("2d");
+	ctx.beginPath();
+	for (i =0;i<=20;i++){
+		ctx.moveTo(0,i*20);
+		ctx.lineTo(400,i*20);
+		ctx.moveTo(i*20,0);
+		ctx.lineTo(i*20,400);
+	}
+	ctx.stroke();
+}
+
+function drawPiece(x, y, color){
+	var c=document.getElementById("board");
+	var ctx=c.getContext("2d");
+	ctx.beginPath();
+	ctx.arc(x*20-10, y*20-10, 7, 0, 2 * Math.PI, false);
+	if (color == 2){
+		ctx.fillStyle = 'black';
+		ctx.fill();
+	}
+	ctx.strokeStyle = '#000000';
+	ctx.stroke();	
+}
+
+</script>
+<script>
+drawGrids();
+</script>
+</body>
+</html>
