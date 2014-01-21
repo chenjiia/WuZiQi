@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <script></script>
   <meta content="text/html; charset=UTF-8" http-equiv="content-type">
   <title>UI</title>
   <script src="js/jquery-2.0.3.min.js"></script>
-
 </head>
 <body>
 <canvas id="board" width="400" height="400"></canvas>
+<p>Status</p>
+<div id="status"></div>
 <script>
+$("#board").offset({top:20,left:20})
 var player = 1;
 //reference: http://stackoverflow.com/questions/3067691/html5-canvas-click-event
 $("#board").click(function(e){
@@ -56,6 +57,6 @@ function drawPiece(x, y, color){
 </script>
 <script>
 drawGrids();
-</script>
+gg</script>
 </body>
 </html>
