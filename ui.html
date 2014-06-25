@@ -7,7 +7,7 @@
 </head>
 <body>
 <canvas id="board" width="400" height="400"></canvas>
-<p>Status</p>
+<p>Status / 状态</p>
 <div id="status"></div>
 <button type="button" onclick="restartGame()">Restart game / 重新开始游戏</button>
 <script>
@@ -21,12 +21,12 @@ var wWidth = $(window).width();
 var wHeight = $(window).height();
 var wMin = (wWidth<wHeight?wWidth:wHeight);
 var gridWidth = 20;
+var canvasWidth = 400;
 if(wMin > 510){
 	gridWidth = Math.floor(wMin*0.7/gridCount);
+	canvasWidth = gridWidth * gridCount;
+	$("#board").prop({'width':canvasWidth,'height':canvasWidth});
 }
-var canvasWidth = gridWidth * gridCount;
-$("#board").prop({'width':canvasWidth,'height':canvasWidth});
-
 var gridWidthHalf = Math.floor(gridWidth / 2);
 var radius = Math.floor(0.7*gridWidthHalf);
 </script>
