@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+  <title>UI</title>
+  <script src="js/jquery-2.0.3.min.js"></script>
+</head>
+<body>
+<canvas id="board" width="400" height="400"></canvas>
+<p>Status / 状态</p>
+<div id="status"></div>
+<button type="button" onclick="restartGame()">Restart game / 重新开始游戏</button>
+<script>
+//abstract 1: board grid number -> board should be square
+//abstract 2: adjust to initial window size
+var gridCount = 20;
+
+var gridEdge = gridCount - 1;
+
+var wWidth = $(window).width();
+var wHeight = $(window).height();
+var wMin = (wWidth<wHeight?wWidth:wHeight);
+var gridWidth = 20;
+var canvasWidth = 400;
+if(wMin > 510){
+	gridWidth = Math.floor(wMin*0.7/gridCount);
+	canvasWidth = gridWidth * gridCount;
+	$("#board").prop({'width':canvasWidth,'height':canvasWidth});
+}
+var gridWidthHalf = Math.floor(gridWidth / 2);
+var radius = Math.floor(0.7*gridWidthHalf);
+</script>
+<script>
+var player = 1;
+var gameEnd = 0;
+var alertStorage = new Array();
+alertStorage[0] = "Waiting on White / 等待白方";
+alertStorage[1] = "Waiting on Black / 等待黑方";
+alertStorage[2] = "White wins / 白方获胜";
+alertStorage[3] = "Black wins / 黑方获胜";
+$("#status").html(alertStorage[0]);
+
+$("#board").offset({top:20,left:20});
+
+// a local copy of board status
+// index 0
+	// 0 untaken
+	// 1 taken by player 1
+	// 2 taken by player 2
+	//board: 20 by 20
+var boardMatrix = new Array();
+for(var i=0; i<gridCount; i++) {
+    boardMatrix[i] = new Array();
+    for(var j=0; j<gridCount; j++) {
+        boardMatrix[i][j] = new Array();
+		for(var k=0; k<5; k++)
+			boardMatrix[i][j][k] = 0; //set all to 0
+    }
+}
+function changeAlert(alertNumber){
+	$("#status").html(alertStorage[alertNumber]);
+}
+</script>
+<script>
+//returns -1 place taken  
+// 2 wins
+// 1 continue
+// goal: maintain the end-point of 'combos'. Use current point for winner detection
+
+// todo: boundary checking on edges->done
+function updateBoradMatrix(x, y, player){
+	if(boardMatrix[x][y][0]!=0)
+		return -1;
+	else{
+		boardMatrix[x][y][0] = player;
+		boardMatrix[x][y][1] = 1;
+		boardMatrix[x][y][2] = 1;
+		boardMatrix[x][y][3] = 1;
+		boardMatrix[x][y][4] = 1;
+		if(x!=0 && y!=0 && boardMatrix[x-1][y-1][0] == player){
+			if(x!=gridEdge&&y!=gridEdge&&boardMatrix[x+1][y+1][0] == player){
+				counter1 = boardMatrix[x-1][y-1][1];
+				counter2 = boardMatrix[x+1][y+1][1];
+				counter3 = counter1 + counter2 + 1;
+				boardMatrix[x-counter1][y-counter1][1] = counter3;
+				boardMatrix[x+counter2][y+counter2][1] = counter3;
+				boardMatrix[x][y][1] = counter3;				
+			}
+			else{
+				counter1 = boardMatrix[x-1][y-1][1];
+				boardMatrix[x-counter1][y-counter1][1] = counter1 + 1;
+				boardMatrix[x][y][1] = counter1 + 1;
+			}
+		}
+		if(y!=0&&boardMatrix[x][y-1][0] == player){
+			if(y!=gridEdge&&boardMatrix[x][y+1][0] == player){
+				counter1 = boardMatrix[x][y-1][2];
+				counter2 = boardMatrix[x][y+1][2];
+				counter3 = counter1 + counter2 + 1;
+				boardMatrix[x][y-counter1][2] = counter3;
+				boardMatrix[x][y+counter2][2] = counter3;
+				boardMatrix[x][y][2] = counter3;				
+			}
+			else{			
+				counter1 = boardMatrix[x][y-1][2];
+				boardMatrix[x][y-counter1][2] = counter1 + 1;
+				boardMatrix[x][y][2] = counter1 + 1;
+			}
+		}
+		if(x!=gridEdge&&y!=0&&boardMatrix[x+1][y-1][0] == player){
+			if(x!=0&&y!=gridEdge&&boardMatrix[x-1][y+1][0] == player){
+				counter1 = boardMatrix[x+1][y-1][3];
+				counter2 = boardMatrix[x-1][y+1][3];
+				counter3 = counter1 + counter2 + 1;
+				boardMatrix[x+counter1][y-counter1][3] = counter3;
+				boardMatrix[x-counter2][y+counter2][3] = counter3;
+				boardMatrix[x][y][3] = counter3;				
+			}
+			else{			
+				counter1 = boardMatrix[x+1][y-1][3];
+				boardMatrix[x+counter1][y-counter1][3] = counter1 + 1;
+				boardMatrix[x][y][3] = counter1 + 1;
+			}
+		}
+		if(x!=gridEdge&&boardMatrix[x+1][y][0] == player){
+			if(x!=0&&boardMatrix[x-1][y][0] == player){
+				counter1 = boardMatrix[x+1][y][4];
+				counter2 = boardMatrix[x-1][y][4];
+				counter3 = counter1 + counter2 + 1;
+				boardMatrix[x+counter1][y][4] = counter3;
+				boardMatrix[x-counter2][y][4] = counter3;
+				boardMatrix[x][y][4] = counter3;				
+			}
+			else{			
+				counter1 = boardMatrix[x+1][y][4];
+				boardMatrix[x+counter1][y][4] = counter1 + 1;
+				boardMatrix[x][y][4] = counter1 + 1;
+			}
+		}
+		if(x!=0&&y!=gridEdge&&boardMatrix[x-1][y+1][0] == player){
+			if(x==gridEdge||y==0||(x!=gridEdge&&y!=0&&boardMatrix[x+1][y-1][0] != player)){
+				counter1 = boardMatrix[x-1][y+1][3];
+				boardMatrix[x-counter1][y+counter1][3] = counter1 + 1;
+				boardMatrix[x][y][3] = counter1 + 1;
+			}
+		}
+		if(y!=gridEdge&&boardMatrix[x][y+1][0] == player){
+			if(y==0||(y!=0&&boardMatrix[x][y-1][0] != player)){
+				counter1 = boardMatrix[x][y+1][2];
+				boardMatrix[x][y+counter1][2] = counter1 + 1;
+				boardMatrix[x][y][2] = counter1 + 1;
+			}
+		}
+		if(x!=gridEdge&&y!=gridEdge&&boardMatrix[x+1][y+1][0] == player){
+			if(x==0||y==0||(x!=0&&y!=0&&boardMatrix[x-1][y-1][0] != player)){
+				counter1 = boardMatrix[x+1][y+1][1];
+				boardMatrix[x+counter1][y+counter1][1] = counter1 + 1;
+				boardMatrix[x][y][1] = counter1 + 1;
+			}
+		}
+		if(x!=0&&boardMatrix[x-1][y][0] == player){
+			if(x==gridEdge||(x!=gridEdge&&boardMatrix[x+1][y][0] != player)){
+				counter1 = boardMatrix[x-1][y][4];
+				boardMatrix[x-counter1][y][4] = counter1 + 1;
+				boardMatrix[x][y][4] = counter1 + 1;
+			}
+		}
+		//console.log(boardMatrix[x][y]);
+		for(var k=1; k<5; k++)
+			if(boardMatrix[x][y][k] >= 5)
+				return 2;
+	}
+	return 1;
+}
+</script>
+<script>
+//reference: http://stackoverflow.com/questions/3067691/html5-canvas-click-event
+$("#board").click(function(e){
+	if (gameEnd == 1)
+		return;
+	// edge clicking->go bottom right
+	var c=document.getElementById("board");
+    var x = Math.floor((e.pageX-$("#board").offset().left) / gridWidth);
+    var y = Math.floor((e.pageY-$("#board").offset().top) / gridWidth);
+	//console.log(x,y);
+	if(player == 1){
+		if(boardMatrix[x][y][0]==0){
+			drawPiece(x,y,1);
+			if(updateBoradMatrix(x, y, 1) == 2){
+				changeAlert(2);
+				gameEnd = 1;
+			}
+			else{
+				player = 2;
+				changeAlert(1);
+			}
+		}
+	}
+	else{
+		if(boardMatrix[x][y][0]==0){
+			drawPiece(x,y,2);
+			if(updateBoradMatrix(x, y, 2) == 2){
+				changeAlert(3);
+				gameEnd = 1;
+			}
+			else{
+				player = 1;
+				changeAlert(0);
+			}
+		}
+	}
+});
+</script>
+<script>
+function drawPiece(x, y, player){
+	var c=document.getElementById("board");
+	var ctx=c.getContext("2d");
+	ctx.beginPath();
+	ctx.arc(x*gridWidth+gridWidthHalf, y*gridWidth+gridWidthHalf, radius, 0, 2 * Math.PI, false);
+	if (player == 2){
+		ctx.fillStyle = 'black';
+		ctx.fill();
+	}
+	ctx.strokeStyle = '#000000';
+	ctx.stroke();
+}
+function drawGrids(){
+	var c=document.getElementById("board");
+	var ctx=c.getContext("2d");
+	ctx.beginPath();
+	for (i =0;i<=gridCount;i++){
+		ctx.moveTo(0,i*gridWidth);
+		ctx.lineTo(canvasWidth,i*gridWidth);
+		ctx.moveTo(i*gridWidth,0);
+		ctx.lineTo(i*gridWidth,canvasWidth);
+	}
+	ctx.stroke();
+}
+drawGrids();
+function restartGame(){
+	player = 1;
+	gameEnd = 0;
+	
+	for(var i=0; i<gridCount; i++)
+		for(var j=0; j<gridCount; j++)
+			for(var k=0; k<5; k++)
+				boardMatrix[i][j][k] = 0; //set all to 0
+	
+	$("#status").html(alertStorage[0]);
+	
+	var c=document.getElementById("board");
+	var ctx=c.getContext("2d");
+	ctx.clearRect(0, 0, c.width, c.height);
+	drawGrids();
+}
+</script>
+</body>
+</html>
