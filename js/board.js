@@ -1,7 +1,7 @@
 var gridCount = 14;
 var gridWidth = 20;
-var canvasWidth = 400;
 
+//draw grids, margin text and square marker
 function drawBoard(){
 	//graw grids
 	var barLength = gridCount * gridWidth;
@@ -20,7 +20,7 @@ function drawBoard(){
 	//add margin text
 	ctx.font="20px Georgia";
 	ctx.textAlign="center";
-	ctx.textBaseline="middle"; 
+	ctx.textBaseline="middle";
 	
 	var textL = 'a';
 	var textN = 1;
@@ -38,3 +38,61 @@ function drawBoard(){
 	ctx.fillRect(57,217,6,6);
 	ctx.fillRect(217,217,6,6);
 }
+
+//draw black and white piece
+//x and y are [0, 14]
+//player can be 1 or 2.
+function drawPiece(x, y, player){
+	var radius = 7;
+	var c=document.getElementById("board");
+	var ctx=c.getContext("2d");
+	ctx.beginPath();
+	ctx.arc(x*gridWidth, y*gridWidth, radius, 0, 2 * Math.PI, false);
+	if (player == 2){
+		ctx.fillStyle = 'black';
+		ctx.fill();
+	}
+	ctx.strokeStyle = '#000000';
+	ctx.stroke();
+}
+function appendClick(){
+$("#board").click(function(e){
+	
+	alert("clicked");
+	alert("clicked");
+	/*if (gameEnd == 1)
+		return;
+	// edge clicking->go bottom right
+	var c=document.getElementById("board");
+    var x = Math.floor((e.pageX-$("#board").offset().left) / gridWidth);
+    var y = Math.floor((e.pageY-$("#board").offset().top) / gridWidth);
+	//console.log(x,y);
+	if(player == 1){
+		if(boardMatrix[x][y][0]==0){
+			drawPiece(x,y,1);
+			if(updateBoradMatrix(x, y, 1) == 2){
+				changeAlert(2);
+				gameEnd = 1;
+			}
+			else{
+				player = 2;
+				changeAlert(1);
+			}
+		}
+	}
+	else{
+		if(boardMatrix[x][y][0]==0){
+			drawPiece(x,y,2);
+			if(updateBoradMatrix(x, y, 2) == 2){
+				changeAlert(3);
+				gameEnd = 1;
+			}
+			else{
+				player = 1;
+				changeAlert(0);
+			}
+		}
+	}*/
+});
+}
+
