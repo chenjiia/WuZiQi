@@ -56,43 +56,38 @@ function drawPiece(x, y, player){
 	ctx.stroke();
 }
 function appendClick(){
-$("#board").click(function(e){
-	
-	alert("clicked");
-	alert("clicked");
-	/*if (gameEnd == 1)
-		return;
-	// edge clicking->go bottom right
-	var c=document.getElementById("board");
-    var x = Math.floor((e.pageX-$("#board").offset().left) / gridWidth);
-    var y = Math.floor((e.pageY-$("#board").offset().top) / gridWidth);
-	//console.log(x,y);
-	if(player == 1){
-		if(boardMatrix[x][y][0]==0){
-			drawPiece(x,y,1);
-			if(updateBoradMatrix(x, y, 1) == 2){
-				changeAlert(2);
-				gameEnd = 1;
+	$("#board").click(function(e){
+		if(state == 2 || state == 3){
+			var x = Math.floor((e.pageX-$("#board").offset().left-60+gridWidth/2) / gridWidth);
+			var y = Math.floor((e.pageY-$("#board").offset().top-60+gridWidth/2) / gridWidth);
+			console.log(x,y);
+			if(state == 2){
+				if(boardMatrix[x][y][0]==0){
+					drawPiece(x,y,1);
+					if(updateBoradMatrix(x, y, 1) == 2){
+						changeAlert(2);
+						gameEnd = 1;
+					}
+					else{
+						player = 2;
+						changeAlert(1);
+					}
+				}
 			}
 			else{
-				player = 2;
-				changeAlert(1);
+				if(boardMatrix[x][y][0]==0){
+					drawPiece(x,y,2);
+					if(updateBoradMatrix(x, y, 2) == 2){
+						changeAlert(3);
+						gameEnd = 1;
+					}
+					else{
+						player = 1;
+						changeAlert(0);
+					}
+				}
 			}
 		}
-	}
-	else{
-		if(boardMatrix[x][y][0]==0){
-			drawPiece(x,y,2);
-			if(updateBoradMatrix(x, y, 2) == 2){
-				changeAlert(3);
-				gameEnd = 1;
-			}
-			else{
-				player = 1;
-				changeAlert(0);
-			}
-		}
-	}*/
-});
+	});
 }
 
